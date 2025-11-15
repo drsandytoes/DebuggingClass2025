@@ -8,7 +8,7 @@ public class SensorManager {
 
     public double getAverageDistance() {
         Random rand = new Random();
-        int randomIndex = rand.nextInt(4);
+        int randomIndex = rand.nextInt(3);
         System.out.println("Random index: " + randomIndex);
 
         double val = distances[randomIndex]; 

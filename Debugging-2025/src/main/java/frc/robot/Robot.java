@@ -18,6 +18,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         System.out.println("Robot initializing...");
         drivetrain = new Drivetrain();
+        sensors = new SensorManager();
 
         configureBindings();
       }

@@ -12,7 +12,7 @@ public class Drivetrain {
         motorSpeeds[0] = left;
         motorSpeeds[1] = right;
 
-        motorSpeeds[2] = (left + right) / 2.0;
+        // motorSpeeds[2] = (left + right) / 2.0;
 
         System.out.println("Motor speeds set to: L=" + left + ", R=" + right);
     }

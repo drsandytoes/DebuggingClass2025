@@ -7,7 +7,7 @@ public class MathUtils {
 
     public static double average(double a, double b) {
         // TODO: Don't forget to implement this!
-        return 0.0;
+        return averageImpl(a, b);
     }
 
     public static double averageImpl(double a, double b) {
