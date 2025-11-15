@@ -2,6 +2,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import dev.doglog.DogLog;
+import static edu.wpi.first.units.Units.Meters;
 
 public class Robot extends TimedRobot {
 
@@ -21,5 +23,8 @@ public class Robot extends TimedRobot {
 
         // Incorrectly filtered distance (this is the bug!)
         double filteredDistance = MathUtils.filter(rawDistance);
+
+        DogLog.log("Sensor/RawDistance", rawDistance, Meters);
+        DogLog.log("Sensor/FilteredDistance", filteredDistance, Meters);
     }
 }
