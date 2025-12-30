@@ -8,7 +8,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
@@ -32,10 +31,6 @@ public class ElevatorSolution extends SubsystemBase {
   private ControlMode m_controlMode = ControlMode.VOLTAGE;
   private double m_targetVoltage = 0.0;
   private double m_targetPosition = 0.0;
-  private double m_slop = 0.1;
-  private DoubleSubscriber tunable_kP = DogLog.tunable("kP", 100.0);
-  private DoubleSubscriber tunable_kI = DogLog.tunable("kI", 200.0);
-  private DoubleSubscriber tunable_kD = DogLog.tunable("kD", 3.0);
 
   private final Timer m_timer = new Timer();
   private double m_lastError = 0.0;
@@ -103,27 +98,27 @@ public class ElevatorSolution extends SubsystemBase {
       case POSITION:
         {
           // TODO: implement
-          // m_motor.setVoltage(0.0);
+          m_motor.setVoltage(0.0);
 
           // Bang-bang control
-          if (currentPosition > m_targetPosition + m_slop) {
-            m_motor.setVoltage(-12.0);
-          } else if (currentPosition < m_targetPosition) {
-            m_motor.setVoltage(12.0);
-          } else {
-            m_motor.setVoltage(0.0);
-          }
+          // if (currentPosition > m_targetPosition) {
+          //   m_motor.setVoltage(-12.0);
+          // } else if (currentPosition < m_targetPosition) {
+          //   m_motor.setVoltage(12.0);
+          // } else {
+          //   m_motor.setVoltage(0.0);
+          // }
 
           // Proportional control
           // double error = m_targetPosition - currentPosition;
-          // double kP = tunable_kP.get();
+          // double kP = 10.0; // volts per meter
           // m_motor.setVoltage(kP * error);
 
           // PD control
           // double error = m_targetPosition - currentPosition;
           // double dError = (error - m_lastError) / m_timer.get();
-          // double kP = tunable_kP.get(); // volts per meter
-          // double kD = tunable_kD.get(); // volts per m/s
+          // double kP = 100.0; // volts per meter
+          // double kD = 3.0; // volts per m/s
           // m_motor.setVoltage(kP * error + kD * dError);
           // m_timer.restart();
           // m_lastError = error;
@@ -132,32 +127,32 @@ public class ElevatorSolution extends SubsystemBase {
           // double error = m_targetPosition - currentPosition;
           // double dError = (error - m_lastError) / m_timer.get();
           // iError = iError + error * m_timer.get();
-          // double kP = tunable_kP.get(); // volts per meter
-          // double kI = tunable_kI.get(); // volts per meter seconds
-          // double kD = tunable_kD.get(); // volts per m/s
+          // double kP = 100.0; // volts per meter
+          // double kI = 200.0; // volts per meter seconds
+          // double kD = 3.0; // volts per m/s
           // m_motor.setVoltage(kP * error + kI * iError + kD * dError);
           // m_timer.restart();
           // m_lastError = error;
 
           // PID control w/ anti-windup
-          double error = m_targetPosition - currentPosition;
-          double dError = (error - m_lastError) / m_timer.get();
-          iError = iError + error * m_timer.get();
-          // Reset integral if position error is greater than |kIZone|
-          double kIZone = 0.05;
-          if (Math.abs(error) > kIZone) {
-            iError = 0.0;
-          }
-          double kP = tunable_kP.get(); // volts per meter
-          double kI = tunable_kI.get(); // volts per meter seconds
-          double kD = tunable_kD.get(); // volts per m/s
-          m_motor.setVoltage(kP * error + kI * iError + kD * dError);
-          m_timer.restart();
-          m_lastError = error;
+          // double error = m_targetPosition - currentPosition;
+          // double dError = (error - m_lastError) / m_timer.get();
+          // iError = iError + error * m_timer.get();
+          // // Reset integral if position error is greater than |kIZone|
+          // double kIZone = 0.05;
+          // if (Math.abs(error) > kIZone) {
+          //   iError = 0.0;
+          // }
+          // double kP = 100.0; // volts per meter
+          // double kI = 200.0; // volts per meter seconds
+          // double kD = 3.0; // volts per m/s
+          // m_motor.setVoltage(kP * error + kI * iError + kD * dError);
+          // m_timer.restart();
+          // m_lastError = error;
 
           // Sample profile
           // final State profileState =
-          // m_profile.calculate(m_profileTimer.get(), m_startState, m_goalState);
+          //     m_profile.calculate(m_profileTimer.get(), m_startState, m_goalState);
           // DogLog.log("Elevator/Profile Position (m)", profileState.position);
           // DogLog.log("Elevator/Profile Velocity (m per s)", profileState.velocity);
 
@@ -168,7 +163,7 @@ public class ElevatorSolution extends SubsystemBase {
           // // Reset integral if position error is greater than |kIZone|
           // double kIZone = 0.01;
           // if (Math.abs(error) > kIZone) {
-          // iError = 0.0;
+          //   iError = 0.0;
           // }
           // double kP = 10.0; // volts per meter
           // double kI = 0.0; // volts per meter seconds
@@ -193,7 +188,7 @@ public class ElevatorSolution extends SubsystemBase {
           // // Reset integral if position error is greater than |kIZone|
           // double kIZone = 0.01;
           // if (Math.abs(error) > kIZone) {
-          // iError = 0.0;
+          //   iError = 0.0;
           // }
           // double kP = 10.0; // volts per meter
           // double kI = 0.0; // volts per meter seconds
@@ -201,7 +196,7 @@ public class ElevatorSolution extends SubsystemBase {
           // double kV = 4.6; // volts per meter per second
           // double kG = 1.1; // volts
           // m_motor.setVoltage(
-          // kP * error + kI * iError + kD * dError + kV * profileState.velocity + kG);
+          //     kP * error + kI * iError + kD * dError + kV * profileState.velocity + kG);
           // m_timer.restart();
           // m_lastError = error;
 

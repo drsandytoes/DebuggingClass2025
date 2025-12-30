@@ -4,13 +4,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import dev.doglog.DogLog;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -21,7 +16,6 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import java.util.function.BooleanSupplier;
 
 public class Elevator extends SubsystemBase {
   private final double kGearRatio = 3.0;
@@ -33,24 +27,6 @@ public class Elevator extends SubsystemBase {
   private ControlMode m_controlMode = ControlMode.VOLTAGE;
   private double m_targetVoltage = 0.0;
   private double m_targetPosition = 0.0;
-
-  private DoubleSubscriber m_tunable_kP = DogLog.tunable("kP", 100.0);
-  private DoubleSubscriber m_tunable_kD = DogLog.tunable("kD", 0.0);
-  private DoubleSubscriber m_tunable_kI = DogLog.tunable("kI", 0.0);
-  private DoubleSubscriber m_tunable_kG = DogLog.tunable("kG", 0.0);
-  private DoubleSubscriber m_tunable_kV = DogLog.tunable("kV", 0.0);
-  private BooleanSupplier m_tunable_trapezoidalProfile =
-      DogLog.tunable("useTrapezoidalProfile", true);
-  private BooleanSupplier m_tunable_limitIZone = DogLog.tunable("limitIZone", true);
-
-  private final Timer m_timer = new Timer();
-  private double m_lastError = 0.0;
-  private double m_iError = 0.0;
-
-  private final Timer m_profileTimer = new Timer();
-  private final TrapezoidProfile m_profile = new TrapezoidProfile(new Constraints(1.0, 2.0));
-  private State m_startState = new State();
-  private State m_goalState = new State();
 
   enum ControlMode {
     VOLTAGE,
@@ -74,14 +50,6 @@ public class Elevator extends SubsystemBase {
         () -> {
           m_controlMode = ControlMode.POSITION;
           m_targetPosition = setpoint;
-
-          m_timer.restart();
-          m_lastError = m_targetPosition - getCurrentPosition();
-          m_iError = 0.0;
-
-          m_profileTimer.restart();
-          m_startState = new State(getCurrentPosition(), getCurrentVelocity());
-          m_goalState = new State(m_targetPosition, 0.0);
         });
   }
 
@@ -107,47 +75,8 @@ public class Elevator extends SubsystemBase {
         }
       case POSITION:
         {
-
-          // Sample profile
-          final State profileState =
-              m_profile.calculate(m_profileTimer.get(), m_startState, m_goalState);
-          DogLog.log("Elevator/Profile Position (m)", profileState.position);
-          DogLog.log("Elevator/Profile Velocity (m per s)", profileState.velocity);
-
-          // Target is either profile position (when using a profile) or the ultimate
-          // target position
-          double error =
-              (m_tunable_trapezoidalProfile.getAsBoolean()
-                      ? profileState.position
-                      : m_targetPosition)
-                  - currentPosition;
-          double dError = (error - m_lastError) / m_timer.get();
-          m_iError = m_iError + error * m_timer.get();
-
-          // Reset integral if position error is greater than |kIZone|
-          if (m_tunable_limitIZone.getAsBoolean()) {
-            double kIZone = 0.01;
-            if (Math.abs(error) > kIZone) {
-              m_iError = 0.0;
-            }
-          }
-
-          double kP = m_tunable_kP.get(); // volts per meter
-          double kI = m_tunable_kI.get(); // volts per meter seconds
-          double kD = m_tunable_kD.get(); // volts per m/s
-          double kV = m_tunable_kV.get(); // volts per meter per second
-          double kG = m_tunable_kG.get(); // volts
-
-          if (!m_tunable_trapezoidalProfile.getAsBoolean()) {
-            // Force kV to 0 if we're not using a profile
-            kV = 0.0;
-          }
-
-          m_motor.setVoltage(
-              kP * error + kI * m_iError + kD * dError + kV * profileState.velocity + kG);
-          m_timer.restart();
-          m_lastError = error;
-
+          // TODO: implement
+          m_motor.setVoltage(0.0);
           break;
         }
     }
